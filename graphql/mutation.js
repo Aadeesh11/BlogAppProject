@@ -1,7 +1,8 @@
 const { GraphQLString } = require('graphql');
-const {} = require("./types");
+const { PostType } = require("./types");
 const {User} = require("../models");
 const {createJwtToken } = require("../util/auth");
+const Post = require('../models/Post');
 
 const register = {
     type: GraphQLString,
@@ -36,5 +37,27 @@ const login = {
     }
 }
 
+const addPost = {
+    type: PostType,
+    args: {
+        title: {type: GraphQLString},
+        body: {type: GraphQLString},
+    },
+    resolve(parent, args, {verifiedUser}){
+        console.log("verified ", verifiedUser);
+        if(!verifiedUser) {
+            throw new Error("authorize by using login mutation and then passing the returned value as header");
+        }
 
-module.exports = {register, login};
+        const post = new Post({
+            authorId:verifiedUser._id,
+            title: args.title,
+            body: args.body,
+        })
+
+        return post.save();
+    }
+}
+
+
+module.exports = {register, login, addPost};

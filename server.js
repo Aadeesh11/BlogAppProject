@@ -8,6 +8,10 @@ const app = express();
 dotenv.config();
 connectDB();
 
+const {authenticate} = require('./middleware/auth');
+
+app.use(authenticate);
+
 app.get("/", (req, res) => {
   res.json({ msg: "hello world! go to /graphql" });
 });
